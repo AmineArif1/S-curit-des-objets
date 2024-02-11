@@ -1,1 +1,1 @@
-readmes makes repos cool
+readmes make repos cool
