@@ -17,10 +17,6 @@ async def device(mac):
 
 
 def getNotified(sender, data):
-    # name, size, hash, createDate = struct.unpack('<8sI4sQ', data)   
-    # hash = '0x' + hash[::-1].hex()
-    # fs_file_info = FsFileInfo(name=name, size=size, hash=hash, createDate=createDate)
-    # print(sender, fs_file_info)
     file_path = "T13.hex"
 
     with open(file_path, "ab") as file:

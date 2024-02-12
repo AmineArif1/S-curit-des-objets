@@ -8,6 +8,5 @@ def calculate_crc32(filename):
     except FileNotFoundError:
         return "Le fichier n'a pas été trouvé."
 
-# Utilisation de la fonction
-filename = "T13.hex"  # Remplacez par le nom de votre fichier
+filename = "T13.hex"  
 print(f"CRC32: {calculate_crc32(filename):08X}")
