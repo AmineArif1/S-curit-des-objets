@@ -2,6 +2,10 @@ import asyncio
 from bleak import BleakClient, BleakScanner
 import time
 import struct
+from collections import namedtuple
+import binascii
+FsFileInfo = namedtuple('FsFileInfo', 'name size hash createDate')
+
 async def device(mac):
     # scan for devices
     devices = await BleakScanner.discover()
@@ -10,13 +14,25 @@ async def device(mac):
             return d
     return None
 
-byte_array = bytearray(b'T10\x00\x00\x00\x00\x00_\x08\x00\x00n\xe1\x0b\xfeH\x08er\xdc\x00\x00\x00')
-hex_string = ''.join('{:02x}'.format(byte) for byte in byte_array)
-print(hex_string)
 
-def getNotified(sender,data):
-    
-    print(sender, data)
+
+def getNotified(sender, data):
+    # name, size, hash, createDate = struct.unpack('<8sI4sQ', data)   
+    # hash = '0x' + hash[::-1].hex()
+    # fs_file_info = FsFileInfo(name=name, size=size, hash=hash, createDate=createDate)
+    # print(sender, fs_file_info)
+    file_path = "T13.hex"
+
+    with open(file_path, "ab") as file:
+        file.write(data)
+
+
+def callBackForList(sender,data):
+    # name, size, hash, createDate = struct.unpack('<8sI4sQ', data)   
+    # hash = '0x' + hash[::-1].hex()
+    # fs_file_info = FsFileInfo(name=name, size=size, hash=hash, createDate=createDate)
+    # print(sender, fs_file_info)
+    print(data)
 
 async def main():
     d = await device('DC:DC:FB:72:D4:56')
@@ -40,8 +56,12 @@ async def main():
             #         pass
                     
             for key in ref:
-                if key.split('-')[-1] == 'LIST':
+                if key.split('-')[-1] == 'READ':
                     await client.start_notify(int(ref[key]), getNotified)
+                         
+            for key in ref:
+                if key.split('-')[-1] == 'LIST':
+                    await client.start_notify(int(ref[key]), callBackForList)
 
             
             # Write to the LIST characteristic first
@@ -53,9 +73,15 @@ async def main():
                 if key.split('-')[-1] == 'LIST':
                     
                     await client.write_gatt_char(int(ref[key]), numValue)
-            time.sleep(2)
+
+            for key in ref:
+                if key.split('-')[-1] == 'READ':
+                        await client.write_gatt_char(int(ref[key]), bytearray(b'T13\x00\x00\x00\x00\x00\x00\x00\x00\x00\x27\x0F\x00\x00'))
             
-           
+            time.sleep(3)
+
+
             
+
 asyncio.run(main())
 
